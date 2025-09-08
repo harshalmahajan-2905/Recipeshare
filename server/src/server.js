@@ -50,10 +50,21 @@ const allowedOrigins = (process.env.CLIENT_URL || 'http://localhost:5173')
   .map(o => o.trim())
   .filter(Boolean);
 
+// Optional: support regex-based origins via CORS_REGEX env (comma-separated regex patterns)
+const originRegexes = (process.env.CORS_REGEX || '')
+  .split(',')
+  .map(s => s.trim())
+  .filter(Boolean)
+  .map(pattern => {
+    try { return new RegExp(pattern); } catch { return null; }
+  })
+  .filter(Boolean);
+
 app.use(cors({
   origin: (origin, callback) => {
     if (!origin) return callback(null, true); // allow non-browser tools
     if (allowedOrigins.includes(origin)) return callback(null, true);
+    if (originRegexes.some(rx => rx.test(origin))) return callback(null, true);
     return callback(new Error('Not allowed by CORS'));
   },
   credentials: true
