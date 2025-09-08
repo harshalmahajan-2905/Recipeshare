@@ -113,13 +113,13 @@ const CreateEditRecipe = ({ isEdit = false }) => {
     e.preventDefault();
     
     // Validation
-    if (!formData.title.trim()) {
-      toast.error('Please enter a recipe title');
+    if (!formData.title.trim() || formData.title.trim().length < 3) {
+      toast.error('Title must be at least 3 characters');
       return;
     }
     
-    if (!formData.description.trim()) {
-      toast.error('Please enter a recipe description');
+    if (!formData.description.trim() || formData.description.trim().length < 10) {
+      toast.error('Description must be at least 10 characters');
       return;
     }
     
@@ -164,7 +164,8 @@ const CreateEditRecipe = ({ isEdit = false }) => {
 
       navigate(`/recipe/${recipe.id}`);
     } catch (error) {
-      toast.error(error.response?.data?.message || `Failed to ${isEdit ? 'update' : 'create'} recipe`);
+      const apiMessage = error.response?.data?.details || error.response?.data?.message;
+      toast.error(apiMessage || `Failed to ${isEdit ? 'update' : 'create'} recipe`);
     } finally {
       setLoading(false);
     }
