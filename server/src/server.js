@@ -50,7 +50,6 @@ const allowedOrigins = (process.env.CLIENT_URL || 'http://localhost:5173')
   .map(o => o.trim())
   .filter(Boolean);
 
-// Optional: support regex-based origins via CORS_REGEX env (comma-separated regex patterns)
 const originRegexes = (process.env.CORS_REGEX || '')
   .split(',')
   .map(s => s.trim())
