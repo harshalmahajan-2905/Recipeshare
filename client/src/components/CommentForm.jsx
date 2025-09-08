@@ -41,6 +41,7 @@ const CommentForm = ({ onSubmit, loading }) => {
         />
         
         <motion.button
+          aria-label="Send comment"
           type="submit"
           disabled={loading || !comment.trim()}
           whileHover={{ scale: 1.05 }}

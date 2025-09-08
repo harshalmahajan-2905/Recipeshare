@@ -34,7 +34,7 @@ const Navbar = () => {
             >
               <ChefHat className="h-6 w-6 text-white" />
             </motion.div>
-            <span className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent">
+            <span className="text-2xl font-bold ">
               RecipeShare
             </span>
           </Link>
@@ -100,6 +100,7 @@ const Navbar = () => {
           {/* Mobile menu button */}
           <div className="md:hidden">
             <motion.button
+              aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
               whileTap={{ scale: 0.95 }}
               onClick={toggleMenu}
               className="p-2 rounded-xl text-gray-600 hover:text-primary-600 hover:bg-gray-100 transition-colors"

@@ -23,13 +23,13 @@ recipeSchema.methods.addOrUpdateRating = function(userId, value) {
     this.ratings[idx].value = value;
   } else {
     this.ratings.push({ user: userId, value });
-  }
-  this.updateAvgRating();
+    }
+    this.updateAvgRating();
 };
 
 recipeSchema.methods.updateAvgRating = function() {
-  if (this.ratings.length === 0) {
-    this.avgRating = 0;
+    if (this.ratings.length === 0) {
+      this.avgRating = 0;
     return;
   }
   const sum = this.ratings.reduce((acc, r) => acc + r.value, 0);
