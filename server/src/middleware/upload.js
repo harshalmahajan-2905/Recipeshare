@@ -2,11 +2,13 @@ import multer from 'multer';
 import path from 'path';
 
 const fileFilter = (req, file, cb) => {
-  const allowedTypes = /jpeg|jpg|png|gif/;
+  // Accept common formats including mobile captures
+  const allowedTypes = /jpeg|jpg|png|gif|webp|heic|heif/;
   const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
-  const mimetype = allowedTypes.test(file.mimetype);
+  const mimetype = allowedTypes.test((file.mimetype || '').toLowerCase());
   if (mimetype && extname) return cb(null, true);
-  cb(new Error('Only image files are allowed'));
+  // Gracefully skip invalid files instead of erroring
+  return cb(null, false);
 };
 
 export const upload = multer({
