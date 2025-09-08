@@ -18,6 +18,24 @@ const createRecipeSchema = Joi.object({
   categories: Joi.array().items(Joi.string().valid('Dessert', 'Dinner', 'Vegan', 'Breakfast', 'Snack')).min(1).required()
 });
 
+// Coerce multipart string fields (JSON) into arrays before validation
+function coerceArraysFromBody(body) {
+  const result = { ...body };
+  const fields = ['ingredients', 'instructions', 'categories'];
+  for (const f of fields) {
+    const v = result[f];
+    if (typeof v === 'string') {
+      try {
+        const parsed = JSON.parse(v);
+        result[f] = Array.isArray(parsed) ? parsed : [];
+      } catch {
+        result[f] = [];
+      }
+    }
+  }
+  return result;
+}
+
 const ratingSchema = Joi.object({
   value: Joi.number().integer().min(1).max(5).required()
 });
@@ -82,12 +100,13 @@ router.get('/:id', optionalAuth, async (req, res) => {
 // Create recipe
 router.post('/', auth, upload.single('photo'), async (req, res) => {
   try {
-    const { error, value } = createRecipeSchema.validate(req.body);
+    const coerced = coerceArraysFromBody(req.body);
+    const { error, value } = createRecipeSchema.validate(coerced);
     if (error) return res.status(400).json({ message: 'Validation error', details: error.details[0].message });
 
-    const ingredients = Array.isArray(value.ingredients) ? value.ingredients : JSON.parse(value.ingredients);
-    const instructions = Array.isArray(value.instructions) ? value.instructions : JSON.parse(value.instructions);
-    const categories = Array.isArray(value.categories) ? value.categories : JSON.parse(value.categories);
+    const ingredients = value.ingredients;
+    const instructions = value.instructions;
+    const categories = value.categories;
 
     let photoUrl = '';
     if (req.file) {
@@ -120,12 +139,13 @@ router.put('/:id', auth, upload.single('photo'), async (req, res) => {
     if (!recipe) return res.status(404).json({ message: 'Recipe not found' });
     if (recipe.author.id !== req.user.id) return res.status(403).json({ message: 'Not authorized to update this recipe' });
 
-    const { error, value } = createRecipeSchema.validate(req.body);
+    const coerced = coerceArraysFromBody(req.body);
+    const { error, value } = createRecipeSchema.validate(coerced);
     if (error) return res.status(400).json({ message: 'Validation error', details: error.details[0].message });
 
-    const ingredients = Array.isArray(value.ingredients) ? value.ingredients : JSON.parse(value.ingredients);
-    const instructions = Array.isArray(value.instructions) ? value.instructions : JSON.parse(value.instructions);
-    const categories = Array.isArray(value.categories) ? value.categories : JSON.parse(value.categories);
+    const ingredients = value.ingredients;
+    const instructions = value.instructions;
+    const categories = value.categories;
 
     const updateData = { title: value.title, description: value.description, ingredients, instructions, categories };
     if (req.file) {
